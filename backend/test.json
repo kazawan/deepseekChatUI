@@ -1,0 +1,10 @@
+{
+  "prompt": "你好，你是谁",
+  "model": "deepseek-chat",
+  "messages": [
+    {
+      "role": "user",
+      "content": "你好，你是谁"
+    }
+  ]
+}

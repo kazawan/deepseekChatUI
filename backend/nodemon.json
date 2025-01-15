@@ -1,0 +1,7 @@
+{
+    "watch": ["index.js", ".env"],
+    "ignore": ["node_modules/*", "data/*", "*.json", "!package.json", "!nodemon.json"],
+    "ext": "js,env",
+    "exec": "node index.js",
+    "verbose": true
+} 
