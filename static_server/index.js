@@ -1,10 +1,19 @@
 const express = require('express');
 const basicAuth = require('express-basic-auth');
 const path = require('path');
+const cors = require('cors');
 require('dotenv').config({ path: '../.env' });
 
 const app = express();
 const PORT = process.env.FRONTEND_PORT || 3030;
+
+// CORS 配置
+app.use(cors({
+    origin: process.env.VITE_API_URL || 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // 基本认证配置
 app.use(basicAuth({
