@@ -25,10 +25,10 @@ deepseekAI/
 
 ## 功能特性 ✨
 
-- 🔐 基于 Token 的用户认证系统
+- 🔐 用户认证系统
 - 💬 实时对话功能
 - 🎨 美观的用户界面
-- 🔄 历史记录保存
+- 🔄 历史记录保存(未开发)
 - 🛡️ 安全的 API 访问控制
 
 ## 环境要求 📋
@@ -41,8 +41,8 @@ deepseekAI/
 
 1. **克隆项目** 📥
 ```bash
-git clone <repository-url>
-cd deepseekAI
+git clone https://gitee.com/kazawan/deepseekChatUI.git
+cd deepseekChatUI
 ```
 
 2. **配置环境变量** ⚙️
@@ -51,8 +51,10 @@ cp .env.example .env
 ```
 编辑 `.env` 文件，填入必要的配置信息：
 - DeepSeek API Key
-- 端口设置
+- DeepSeek baseurl
+- 端口设置 (前后端)
 - 认证信息
+- ....
 
 3. **启动服务** 🎯
 ```bash
@@ -60,7 +62,7 @@ docker-compose up --build
 ```
 
 ## 访问服务 🌐
-
+如果你在本地部署
 - 前端界面: `http://localhost:${FRONTEND_PORT}`
 - 后端API: `http://localhost:${BACKEND_PORT}`
 
@@ -78,7 +80,7 @@ docker-compose up --build
 2. **后端服务** 🛠️
    - Node.js Express 服务
    - 处理 DeepSeek API 调用
-   - 管理用户 Token
+   - 管理用户AI Token数量
 
 3. **静态服务器** 📦
    - 提供前端静态资源服务
@@ -88,18 +90,22 @@ docker-compose up --build
 ### 环境变量说明 🔧
 
 ```env
+# Usage: cp .env.example .env
+
 # 后端配置
-BACKEND_PORT=3000              # 后端服务端口
-DEEPSEEK_API_KEY=your-key     # DeepSeek API密钥
-INITIAL_TOKEN_BALANCE=1000000  # 初始Token余额
+BACKEND_PORT=5000    // 后端端口
+BACKEND_URL=http://localhost  // 地址
+DEEPSEEK_API_KEY=your_api_key_here  // deepseek apikey
+DEEPSEEK_BASE_URL=https://api.deepseek.com // base url
+INITIAL_TOKEN_BALANCE=1000000  // 生于tokens 数量
 
 # 前端配置
-FRONTEND_PORT=3030            # 前端服务端口
-VITE_API_URL=http://localhost:3000  # API地址
+FRONTEND_PORT=5050 // 前端端口
+VITE_API_URL=http://localhost:5000  // 前端链接后端地址
 
 # 认证配置
-AUTH_USER=your-username       # 静态服务器用户名
-AUTH_PASS=your-password       # 静态服务器密码
+AUTH_USER=admin  // 用户名
+AUTH_PASS=admin  // 密码
 ```
 
 ## 开发指南 👨‍💻
