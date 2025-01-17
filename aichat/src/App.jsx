@@ -15,7 +15,29 @@ const CopyButton = ({ text }) => {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(text);
+      // 首先尝试使用 navigator.clipboard API
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // 后备方案：使用传统的 document.execCommand 方法
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+          document.execCommand('copy');
+        } catch (err) {
+          console.error('复制失败:', err);
+          throw err;
+        } finally {
+          textArea.remove();
+        }
+      }
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -373,10 +395,36 @@ function App() {
   };
 
   const handleCopyText = (text) => {
-    navigator.clipboard.writeText(text).then(() => {
-      // 可以添加一个提示，表示复制成功
-      console.log('文本已复制');
-    });
+    try {
+      // 首先尝试使用 navigator.clipboard API
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => {
+          console.log('文本已复制');
+        });
+      } else {
+        // 后备方案：使用传统的 document.execCommand 方法
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+          document.execCommand('copy');
+          console.log('文本已复制');
+        } catch (err) {
+          console.error('复制失败:', err);
+          throw err;
+        } finally {
+          textArea.remove();
+        }
+      }
+    } catch (err) {
+      console.error('复制失败:', err);
+    }
   };
 
   const handleExportTxt = (text) => {
