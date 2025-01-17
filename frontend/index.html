@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat</title>
+    <style>
+        body {
+            background-color: black;
+            color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 80%;
+            max-width: 800px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #444;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .chat-history {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #111;
+        }
+
+        /* 自定义滚动条样式 */
+        .chat-history::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-history::-webkit-scrollbar-track {
+            background: #1a1a1a;
+            border-radius: 4px;
+        }
+
+        .chat-history::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 4px;
+        }
+
+        .chat-history::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 70%;
+        }
+
+        .user-message {
+            background-color: #333;
+            margin-left: auto;
+        }
+
+        .ai-message {
+            background-color: #222;
+            margin-right: auto;
+        }
+
+        /* Markdown 样式 */
+        .ai-message {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .ai-message h1 {
+            color: #f0f0f0;
+            margin: 1.5em 0 0.8em 0;
+            font-size: 1.6em;
+            border-bottom: 1px solid #444;
+            padding-bottom: 0.3em;
+        }
+
+        .ai-message h2 {
+            color: #f0f0f0;
+            margin: 1.3em 0 0.7em 0;
+            font-size: 1.4em;
+        }
+
+        .ai-message h3 {
+            color: #f0f0f0;
+            margin: 1.1em 0 0.6em 0;
+            font-size: 1.2em;
+        }
+
+        .ai-message p {
+            margin: 0.8em 0;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+
+        .ai-message ol {
+            list-style-type: decimal;
+            margin: 1em 0;
+            padding-left: 2.5em;
+        }
+
+        .ai-message ol li {
+            margin: 0.8em 0;
+            display: list-item;
+        }
+
+        .ai-message ol li p {
+            margin: 0;
+            display: inline;
+        }
+
+        .ai-message code {
+            background-color: #2d2d2d;
+            padding: 0.25em 0.5em;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .ai-message pre {
+            background-color: #2d2d2d;
+            padding: 1.2em;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1em 0;
+            line-height: 1.5;
+        }
+
+        .ai-message pre code {
+            background-color: transparent;
+            padding: 0;
+            font-size: 0.95em;
+        }
+
+        .ai-message ul, .ai-message ol {
+            padding-left: 2em;
+            margin: 1em 0;
+        }
+
+        .ai-message li {
+            margin: 0.5em 0;
+            line-height: 1.6;
+        }
+
+        .ai-message blockquote {
+            border-left: 4px solid #666;
+            padding: 0.8em 1.2em;
+            margin: 1.2em 0;
+            color: #ddd;
+            background-color: #1a1a1a;
+            border-radius: 4px;
+        }
+
+        .ai-message table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.2em 0;
+        }
+
+        .ai-message th,
+        .ai-message td {
+            padding: 0.6em;
+            border: 1px solid #444;
+        }
+
+        .ai-message th {
+            background-color: #2d2d2d;
+        }
+
+        .ai-message a {
+            color: #4dabf7;
+            text-decoration: none;
+        }
+
+        .ai-message a:hover {
+            text-decoration: underline;
+        }
+
+        .input-container {
+            display: flex;
+            padding: 10px;
+            background-color: #1a1a1a;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #333;
+            color: #f0f0f0;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #444;
+            color: #f0f0f0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        button.stop {
+            background-color: #ff4444;
+        }
+
+        button.stop:hover {
+            background-color: #ff6666;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        .loading-dots {
+            display: block;
+            padding: 10px;
+        }
+
+        .loading-dots span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #888;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .loading-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% { 
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-history" id="chat-history">
+            <!-- Chat messages will appear here -->
+        </div>
+        <div class="input-container">
+            <input type="text" id="message-input" placeholder="输入你的消息...">
+            <button onclick="sendMessage()">发送</button>
+            <button class="stop" id="stop-button" style="display: none;" onclick="stopGeneration()">停止</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        const chatHistory = document.getElementById('chat-history');
+        const messageInput = document.getElementById('message-input');
+
+        function addMessage(role, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', `${role}-message`);
+            
+            // 创建消息内容容器
+            const contentContainer = document.createElement('div');
+            contentContainer.classList.add('message-content');
+            
+            if (role === 'ai') {
+                // 使用 marked.parse 渲染 Markdown，并启用安全模式
+                // 在内容前添加换行符确保正确分段
+                const formattedContent = content.replace(/\n/g, '\n\n');
+                const parsedContent = marked.parse(formattedContent, {
+                    breaks: true,
+                    gfm: true,
+                    sanitize: true,
+                    smartypants: true,
+                    xhtml: true
+                });
+                
+                // 使用 DocumentFragment 提高性能
+                const fragment = document.createDocumentFragment();
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = parsedContent;
+                
+                // 将解析后的内容移动到 fragment
+                while (tempDiv.firstChild) {
+                    fragment.appendChild(tempDiv.firstChild);
+                }
+                
+                contentContainer.appendChild(fragment);
+            } else {
+                // 用户消息直接显示纯文本
+                contentContainer.textContent = content;
+            }
+            
+            messageDiv.appendChild(contentContainer);
+            
+            // 使用 requestAnimationFrame 优化滚动性能
+            requestAnimationFrame(() => {
+                chatHistory.appendChild(messageDiv);
+                // 仅在接近底部时滚动
+                const isNearBottom = chatHistory.scrollHeight - chatHistory.clientHeight - chatHistory.scrollTop < 100;
+                if (isNearBottom) {
+                    chatHistory.scrollTop = chatHistory.scrollHeight;
+                }
+            });
+            
+            return messageDiv;
+        }
+
+        let controller = null;
+        let currentLoadingDots = null;
+
+        function stopGeneration() {
+            if (controller) {
+                controller.abort();
+                controller = null;
+                document.getElementById('stop-button').style.display = 'none';
+                addMessage('ai', '生成已停止');
+            }
+        }
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            addMessage('user', message);
+            messageInput.value = '';
+            document.getElementById('stop-button').style.display = 'inline-block';
+
+            // 清除之前的加载动画
+            if (currentLoadingDots && currentLoadingDots.parentNode) {
+                currentLoadingDots.remove();
+            }
+            
+            // 显示新的加载动画
+            currentLoadingDots = document.createElement('div');
+            currentLoadingDots.className = 'loading-dots';
+            currentLoadingDots.innerHTML = '<span></span><span></span><span></span>';
+            const aiMessage = addMessage('ai', '');
+            aiMessage.appendChild(currentLoadingDots);
+
+            try {
+                controller = new AbortController();
+                const response = await fetch('http://localhost:3000/deepseek_stream', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message }),
+                    signal: controller.signal
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let aiMessage = addMessage('ai', '');
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n\n');
+                    
+                    lines.forEach(line => {
+                        if (line.startsWith('data:')) {
+                            const data = JSON.parse(line.slice(5).trim());
+                            // 更新消息内容并重新渲染 Markdown
+                            const currentContent = (aiMessage.textContent || '') + data.content;
+                            // 移除加载动画
+                            if (currentLoadingDots && currentLoadingDots.parentNode) {
+                                currentLoadingDots.remove();
+                                currentLoadingDots = null;
+                            }
+                            // 先保存滚动位置
+                            const shouldScroll = chatHistory.scrollTop + chatHistory.clientHeight >= chatHistory.scrollHeight - 50;
+                            // 渲染 Markdown
+                            aiMessage.innerHTML = marked.parse(currentContent, {
+                                breaks: true,
+                                gfm: true,
+                                sanitize: true
+                            });
+                            // 恢复滚动位置
+                            if (shouldScroll) {
+                                chatHistory.scrollTop = chatHistory.scrollHeight;
+                            }
+                            chatHistory.scrollTop = chatHistory.scrollHeight;
+                        }
+                    });
+                }
+                // 请求完成后隐藏停止按钮
+                document.getElementById('stop-button').style.display = 'none';
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    console.error('Error:', error);
+                    addMessage('ai', '抱歉，出现了一些问题。请稍后再试。');
+                }
+                controller = null;
+                document.getElementById('stop-button').style.display = 'none';
+            }
+        }
+
+
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
