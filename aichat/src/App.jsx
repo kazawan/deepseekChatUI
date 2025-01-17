@@ -13,17 +13,20 @@ const API_URL = import.meta.env.VITE_API_URL;
 const CopyButton = ({ text }) => {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = () => {
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('复制失败:', err);
+    }
   };
 
   return (
-    <CopyToClipboard text={text} onCopy={handleCopy}>
-      <button className="copy-button">
-        {copied ? '✓ 已复制' : '复制代码'}
-      </button>
-    </CopyToClipboard>
+    <button className="copy-button" onClick={handleCopy}>
+      {copied ? '✓ 已复制' : '复制代码'}
+    </button>
   );
 };
 

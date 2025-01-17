@@ -18,6 +18,8 @@ services:
       dockerfile: ./static_server/Dockerfile
     ports:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    environment:
+      - VITE_API_URL=http://${BACKEND_URL}:${BACKEND_PORT}
     env_file:
       - .env
     depends_on:

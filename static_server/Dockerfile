@@ -2,7 +2,8 @@
 FROM node:18-alpine as builder
 WORKDIR /app
 COPY aichat/package*.json ./
-RUN npm install
+COPY .env ../.env
+RUN npm install --registry=https://registry.npmmirror.com
 COPY aichat/ ./
 RUN npm run build
 
@@ -10,7 +11,7 @@ RUN npm run build
 FROM node:18-alpine
 WORKDIR /app
 COPY static_server/package*.json ./
-RUN npm install --production
+RUN npm install --production --registry=https://registry.npmmirror.com
 COPY --from=builder /app/dist ./public
 COPY static_server/index.js .
 COPY .env ../.env

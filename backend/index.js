@@ -5,10 +5,14 @@ import OpenAI from "openai";
 import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
 import { mkdir } from 'fs/promises';
-import { join } from 'path';
+import { join, resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // 加载环境变量
-dotenv.config();
+dotenv.config({ path: resolve(__dirname, '../.env') });
 
 const app = express();
 app.use(cors());
@@ -212,7 +216,7 @@ app.post('/chat_stop', (req, res) => {
     res.json({ status: 'stopped' });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.BACKEND_PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
